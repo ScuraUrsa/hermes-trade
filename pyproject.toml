@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hermes_trade"
+version = "0.1.0"
+description = "AI/LLM-driven algorithmic trading system — event-driven architecture with FinBERT sentiment analysis, RL decision engine, and multi-broker execution"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Filip Kaźmierczak", email = "filip@hermestrade.dev"}
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+
+dependencies = [
+    "redis>=5.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "httpx>=0.25",
+    "websockets>=12.0",
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "pyyaml>=6.0",
+    "structlog>=24.0",
+    "tenacity>=8.0",
+    "backtesting>=0.3.3",
+    "yfinance>=0.2.30",
+    "ccxt>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.12",
+    "mypy>=1.8",
+    "ruff>=0.1",
+    "black>=24.0",
+    "pre-commit>=3.6",
+]
+llm = [
+    "transformers>=4.36",
+    "torch>=2.1",
+    "sentencepiece>=0.1.99",
+    "accelerate>=0.25",
+]
+rl = [
+    "gymnasium>=0.29",
+    "stable-baselines3>=2.1",
+]
+brokers = [
+    "alpaca-py>=0.16",
+    "ib_insync>=0.9",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short --strict-markers"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

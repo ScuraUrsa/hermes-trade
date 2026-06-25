@@ -1,0 +1,38 @@
+# HermesTrade Default Configuration
+# =================================
+# This file provides default values for all settings.
+# Environment variables with HERMES_TRADE_ prefix override these values.
+# See src/hermes_trade/core/config.py for the full Settings model.
+
+# Redis connection URL
+redis_url: "redis://localhost:6379/0"
+
+# Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+log_level: "INFO"
+
+# Broker configurations
+brokers:
+  alpaca:
+    api_key: ""
+    secret_key: ""
+    base_url: "https://paper-api.alpaca.markets"
+    data_url: "https://data.alpaca.markets"
+
+  ibkr:
+    host: "127.0.0.1"
+    port: 7497
+    client_id: 1
+
+  xtb:
+    user_id: ""
+    password: ""
+    demo: true
+
+# Risk management limits
+risk:
+  max_position_size: "10000"
+  max_daily_loss: "1000"
+  max_drawdown_pct: 20.0
+  max_trades_per_day: 50
+  stop_loss_pct: 2.0
+  take_profit_pct: null

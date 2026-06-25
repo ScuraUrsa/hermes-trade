@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  hermes-trade:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - ../config/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - HERMES_TRADE_MODE=paper
+    volumes:
+      - ../config:/app/config:ro
+      - trade_data:/app/data
+    restart: unless-stopped
+
+  # Optional: PostgreSQL + TimescaleDB for time-series data
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: hermes
+      POSTGRES_PASSWORD: trade
+      POSTGRES_DB: hermes_trade
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    profiles:
+      - full
+
+  # Optional: Ollama for local LLM inference
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles:
+      - gpu
+
+volumes:
+  redis_data:
+  trade_data:
+  pg_data:
+  ollama_data:
