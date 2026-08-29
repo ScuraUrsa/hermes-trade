@@ -3,9 +3,8 @@
 TDD: tests written before implementation.
 """
 
-from datetime import datetime, timedelta
-from decimal import Decimal
-from unittest.mock import MagicMock, patch
+from datetime import timedelta
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -159,7 +158,7 @@ class TestBacktestEngine:
                 ["Open", "High", "Low", "Close", "Volume"],
                 ["AAPL", "AAPL", "AAPL", "AAPL", "AAPL"],
             ]
-            tuples = list(zip(*arrays))
+            tuples = list(zip(*arrays, strict=False))
             index = pd.MultiIndex.from_tuples(tuples)
             mock_df = pd.DataFrame(
                 np.random.randn(5, 5), columns=index, index=pd.date_range("2024-01-01", periods=5)
@@ -254,7 +253,7 @@ class TestBacktestEngine:
                 if len(self.data) == 20 and not self.position:
                     self.buy()
 
-        result = engine.run(sample_ohlcv_data, BuyHold)
+        engine.run(sample_ohlcv_data, BuyHold)
         equity_curve = engine.get_equity_curve()
 
         assert equity_curve is not None
@@ -279,7 +278,7 @@ class TestBacktestEngine:
                 elif len(self.data) == 40 and self.position:
                     self.position.close()
 
-        result = engine.run(sample_ohlcv_data, BuyHold)
+        engine.run(sample_ohlcv_data, BuyHold)
         trades = engine.get_trades()
 
         assert trades is not None
@@ -592,9 +591,9 @@ class TestStrategyRunner:
 
     def test_runner_initialization(self, sample_ohlcv_data: pd.DataFrame) -> None:
         """Should initialize with data and strategy."""
-        from hermes_trade.backtesting.engine import StrategyRunner
-
         from backtesting import Strategy
+
+        from hermes_trade.backtesting.engine import StrategyRunner
 
         class DummyStrategy(Strategy):
             def init(self):
@@ -610,9 +609,9 @@ class TestStrategyRunner:
 
     def test_runner_replays_events_chronologically(self, sample_ohlcv_data: pd.DataFrame) -> None:
         """Should replay events in chronological order."""
-        from hermes_trade.backtesting.engine import StrategyRunner
-
         from backtesting import Strategy
+
+        from hermes_trade.backtesting.engine import StrategyRunner
 
         events_received = []
 
@@ -639,9 +638,9 @@ class TestStrategyRunner:
 
     def test_runner_collects_events(self, sample_ohlcv_data: pd.DataFrame) -> None:
         """Should collect events during replay."""
-        from hermes_trade.backtesting.engine import StrategyRunner
-
         from backtesting import Strategy
+
+        from hermes_trade.backtesting.engine import StrategyRunner
 
         class EventStrategy(Strategy):
             def init(self):
@@ -666,9 +665,9 @@ class TestStrategyRunner:
 
     def test_runner_returns_stats(self, sample_ohlcv_data: pd.DataFrame) -> None:
         """Should return backtest statistics after running."""
-        from hermes_trade.backtesting.engine import StrategyRunner
-
         from backtesting import Strategy
+
+        from hermes_trade.backtesting.engine import StrategyRunner
 
         class SimpleStrategy(Strategy):
             def init(self):

@@ -1,7 +1,7 @@
 """Risk manager — validates trade signals against configured risk limits."""
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 
 import structlog
@@ -66,7 +66,10 @@ class RiskManager:
         if signal.quantity > self.limits.max_position_size:
             return RiskCheckResult(
                 approved=False,
-                reason=f"Position size {signal.quantity} exceeds max {self.limits.max_position_size}",
+                reason=(
+                    f"Position size {signal.quantity} exceeds max "
+                    f"{self.limits.max_position_size}"
+                ),
             )
 
         # Check daily loss limit

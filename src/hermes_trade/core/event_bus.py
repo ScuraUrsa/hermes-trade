@@ -8,13 +8,14 @@ RedisEventBus enables multi-process / distributed event propagation.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import uuid
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from datetime import datetime
-from decimal import Decimal
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -34,7 +35,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 # Map EventType -> Pydantic model class for deserialization
-_EVENT_TYPE_MODEL_MAP: Dict[EventType, Type[BaseModel]] = {
+_EVENT_TYPE_MODEL_MAP: dict[EventType, type[BaseModel] | None] = {
     EventType.MARKET_DATA: MarketData,
     EventType.NEWS_ARTICLE: NewsItem,
     EventType.SENTIMENT_SIGNAL: SentimentSignal,
@@ -51,16 +52,16 @@ class Event(BaseModel):
 
     event_id: str = Field(default_factory=lambda: uuid.uuid4().hex)
     event_type: EventType
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     @classmethod
-    def from_model(cls, model: BaseModel, event_type: EventType) -> "Event":
+    def from_model(cls, model: BaseModel, event_type: EventType) -> Event:
         """Create an Event by serializing a Pydantic domain model into the payload."""
         payload = json.loads(model.model_dump_json())
         return cls(event_type=event_type, payload=payload)
 
-    def deserialize_payload(self) -> BaseModel | Dict[str, Any]:
+    def deserialize_payload(self) -> BaseModel | dict[str, Any]:
         """Reconstruct the domain model from the payload, if the type is known."""
         model_cls = _EVENT_TYPE_MODEL_MAP.get(self.event_type)
         if model_cls is None:
@@ -110,7 +111,7 @@ class InMemoryEventBus(EventBus):
     """
 
     def __init__(self) -> None:
-        self._handlers: Dict[EventType, List[EventHandler]] = {}
+        self._handlers: dict[EventType, list[EventHandler]] = {}
 
     async def publish(self, event: Event) -> None:
         handlers = self._handlers.get(event.event_type, [])
@@ -152,9 +153,9 @@ class RedisEventBus(EventBus):
 
     def __init__(self, redis_client: Any) -> None:
         self._redis = redis_client
-        self._pubsubs: Dict[EventType, Any] = {}
-        self._listener_tasks: Dict[EventType, asyncio.Task[None]] = {}
-        self._handlers: Dict[EventType, List[EventHandler]] = {}
+        self._pubsubs: dict[EventType, Any] = {}
+        self._listener_tasks: dict[EventType, asyncio.Task[None]] = {}
+        self._handlers: dict[EventType, list[EventHandler]] = {}
 
     @classmethod
     def _channel_name(cls, event_type: EventType) -> str:
@@ -228,7 +229,5 @@ class RedisEventBus(EventBus):
             task = self._listener_tasks.pop(event_type, None)
             if task:
                 task.cancel()
-                try:
+                with contextlib.suppress(asyncio.CancelledError):
                     await task
-                except asyncio.CancelledError:
-                    pass

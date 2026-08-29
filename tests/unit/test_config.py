@@ -1,10 +1,10 @@
 """Tests for configuration system — Settings, YAML loader, env overrides."""
 
-import os
 from decimal import Decimal
 
 import pytest
 import yaml
+from pydantic import ValidationError
 
 from hermes_trade.core.config import (
     AlpacaConfig,
@@ -122,11 +122,11 @@ class TestRiskLimitsConfig:
         assert cfg.take_profit_pct == 5.0
 
     def test_rejects_negative_max_position_size(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             RiskLimitsConfig(max_position_size=Decimal("-1"))
 
     def test_rejects_zero_max_trades_per_day(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             RiskLimitsConfig(max_trades_per_day=0)
 
 

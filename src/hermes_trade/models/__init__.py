@@ -2,13 +2,12 @@
 
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class AssetClass(str, Enum):
+class AssetClass(StrEnum):
     STOCK = "stock"
     CRYPTO = "crypto"
     FOREX = "forex"
@@ -17,19 +16,19 @@ class AssetClass(str, Enum):
     FUTURE = "future"
 
 
-class OrderSide(str, Enum):
+class OrderSide(StrEnum):
     BUY = "buy"
     SELL = "sell"
 
 
-class OrderType(str, Enum):
+class OrderType(StrEnum):
     MARKET = "market"
     LIMIT = "limit"
     STOP = "stop"
     STOP_LIMIT = "stop_limit"
 
 
-class OrderStatus(str, Enum):
+class OrderStatus(StrEnum):
     PENDING = "pending"
     SUBMITTED = "submitted"
     FILLED = "filled"
@@ -38,13 +37,13 @@ class OrderStatus(str, Enum):
     REJECTED = "rejected"
 
 
-class SentimentLabel(str, Enum):
+class SentimentLabel(StrEnum):
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NEUTRAL = "neutral"
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     MARKET_DATA = "market_data"
     NEWS_ARTICLE = "news_article"
     SOCIAL_POST = "social_post"
@@ -72,7 +71,7 @@ class NewsItem(BaseModel):
     """A news article or social media post detected by watchers."""
 
     source: str = Field(..., min_length=1)
-    source_url: Optional[str] = None
+    source_url: str | None = None
     title: str = Field(..., min_length=1)
     content: str = Field(..., min_length=1)
     published_at: datetime
@@ -91,7 +90,7 @@ class SentimentSignal(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0)
     model_name: str
     analyzed_at: datetime = Field(default_factory=datetime.utcnow)
-    explanation: Optional[str] = None
+    explanation: str | None = None
 
 
 class TradeSignal(BaseModel):
@@ -101,8 +100,8 @@ class TradeSignal(BaseModel):
     side: OrderSide
     quantity: Decimal = Field(..., gt=0)
     order_type: OrderType = OrderType.MARKET
-    limit_price: Optional[Decimal] = None
-    stop_price: Optional[Decimal] = None
+    limit_price: Decimal | None = None
+    stop_price: Decimal | None = None
     confidence: float = Field(..., ge=0.0, le=1.0)
     reason: str = Field(..., min_length=1)
     generated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -120,10 +119,10 @@ class Order(BaseModel):
     quantity: Decimal = Field(..., gt=0)
     status: OrderStatus = OrderStatus.PENDING
     filled_quantity: Decimal = Field(default=Decimal("0"), ge=0)
-    avg_fill_price: Optional[Decimal] = None
+    avg_fill_price: Decimal | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    broker_order_id: Optional[str] = None
+    broker_order_id: str | None = None
 
 
 class RiskLimits(BaseModel):
@@ -134,4 +133,4 @@ class RiskLimits(BaseModel):
     max_drawdown_pct: float = Field(..., gt=0.0, le=100.0)
     max_trades_per_day: int = Field(..., gt=0)
     stop_loss_pct: float = Field(..., gt=0.0, le=100.0)
-    take_profit_pct: Optional[float] = Field(default=None, gt=0.0, le=1000.0)
+    take_profit_pct: float | None = Field(default=None, gt=0.0, le=1000.0)
