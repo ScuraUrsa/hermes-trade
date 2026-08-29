@@ -1,7 +1,6 @@
 """Sentiment analysis pipeline — FinBERT-based financial text sentiment."""
 
 from datetime import datetime
-from typing import Optional
 
 import structlog
 
@@ -45,7 +44,7 @@ class SentimentAnalyzer:
     ) -> None:
         self.model_name = model_name
         self.use_heuristic = use_heuristic
-        self._model: Optional[object] = None
+        self._model: object | None = None
 
     async def analyze(self, news_item: NewsItem) -> SentimentSignal:
         """Analyze a single news item and return a sentiment signal.

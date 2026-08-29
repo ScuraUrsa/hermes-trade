@@ -14,9 +14,8 @@ from __future__ import annotations
 import os
 from decimal import Decimal
 from pathlib import Path
-from typing import Optional
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -72,7 +71,7 @@ class RiskLimitsConfig(BaseSettings):
     max_drawdown_pct: float = Field(default=20.0, gt=0.0, le=100.0)
     max_trades_per_day: int = Field(default=50, gt=0)
     stop_loss_pct: float = Field(default=2.0, gt=0.0, le=100.0)
-    take_profit_pct: Optional[float] = Field(default=None, gt=0.0, le=1000.0)
+    take_profit_pct: float | None = Field(default=None, gt=0.0, le=1000.0)
 
 
 class Settings(BaseSettings):
@@ -94,7 +93,7 @@ class Settings(BaseSettings):
     risk: RiskLimitsConfig = Field(default_factory=RiskLimitsConfig)
 
 
-def _load_yaml_values(yaml_path: str) -> dict:
+def _load_yaml_values(yaml_path: str) -> dict[str, object]:
     """Load configuration values from a YAML file.
 
     Returns an empty dict if the file does not exist or cannot be parsed.
@@ -102,7 +101,7 @@ def _load_yaml_values(yaml_path: str) -> dict:
     path = Path(yaml_path)
     if not path.is_file():
         return {}
-    with open(path, "r") as f:
+    with open(path) as f:
         data = yaml.safe_load(f)
     if not isinstance(data, dict):
         return {}
@@ -137,7 +136,7 @@ def _coerce_value(model: object, field_name: str, value: object) -> object:
     return value
 
 
-def _merge_yaml_into_settings(settings: Settings, yaml_data: dict) -> None:
+def _merge_yaml_into_settings(settings: Settings, yaml_data: dict[str, object]) -> None:
     """Merge YAML values into a Settings instance, skipping env-overridden keys.
 
     Walks the nested YAML dict and sets attributes on the settings object,
@@ -146,7 +145,7 @@ def _merge_yaml_into_settings(settings: Settings, yaml_data: dict) -> None:
     """
     env_prefix = "HERMES_TRADE_"
 
-    def _walk(source: dict, target: object, prefix: str) -> None:
+    def _walk(source: dict[str, object], target: object, prefix: str) -> None:
         for key, value in source.items():
             if isinstance(value, dict):
                 _walk(value, getattr(target, key), f"{prefix}{key}__")
@@ -160,7 +159,7 @@ def _merge_yaml_into_settings(settings: Settings, yaml_data: dict) -> None:
     _walk(yaml_data, settings, "")
 
 
-def load_config(yaml_path: Optional[str] = None) -> Settings:
+def load_config(yaml_path: str | None = None) -> Settings:
     """Load configuration from a YAML file with environment variable overrides.
 
     Resolution order (last wins):

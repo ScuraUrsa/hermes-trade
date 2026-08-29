@@ -3,7 +3,6 @@
 import asyncio
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import Optional
 from urllib.parse import urlparse
 
 import httpx
@@ -27,7 +26,7 @@ class RSSMonitor:
         self,
         feeds: list[str],
         poll_interval: int = 60,
-        http_client: Optional[httpx.AsyncClient] = None,
+        http_client: httpx.AsyncClient | None = None,
     ) -> None:
         if not feeds:
             raise ValueError("At least one feed URL is required")
@@ -152,7 +151,7 @@ class RSSMonitor:
         return items
 
     @staticmethod
-    def _parse_date(date_str: Optional[str]) -> datetime:
+    def _parse_date(date_str: str | None) -> datetime:
         """Parse common RSS/Atom date formats."""
         if not date_str:
             return datetime.utcnow()

@@ -7,14 +7,13 @@ calculation, a paper trading simulator, and a chronological event-replay runner.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Type
+from datetime import UTC, datetime
+from typing import Any
 
 import numpy as np
-import pandas as pd
-import yfinance as yf
-from backtesting import Backtest, Strategy
-
+import pandas as pd  # type: ignore[import-untyped]
+import yfinance as yf  # type: ignore[import-untyped]
+from backtesting import Backtest, Strategy  # type: ignore[import-untyped]
 
 # ---------------------------------------------------------------------------
 # PerformanceMetrics
@@ -138,7 +137,7 @@ class PerformanceMetrics:
         equity_curve: pd.Series,
         trades: pd.DataFrame,
         risk_free_rate: float = 0.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute a full dictionary of performance metrics.
 
         Args:
@@ -206,8 +205,8 @@ class BacktestEngine:
         self.initial_cash = initial_cash
         self.commission = commission
         self.spread = spread
-        self._last_result: Optional[pd.Series] = None
-        self._last_backtest: Optional[Backtest] = None
+        self._last_result: pd.Series | None = None
+        self._last_backtest: Backtest | None = None
 
     def load_data(
         self,
@@ -248,7 +247,7 @@ class BacktestEngine:
     def run(
         self,
         data: pd.DataFrame,
-        strategy: Type[Strategy],
+        strategy: type[Strategy],
         **strategy_params: Any,
     ) -> pd.Series:
         """Run a backtest with the given data and strategy.
@@ -273,7 +272,7 @@ class BacktestEngine:
         self._last_backtest = bt
         return result
 
-    def get_equity_curve(self) -> Optional[pd.DataFrame]:
+    def get_equity_curve(self) -> pd.DataFrame | None:
         """Return the equity curve from the last backtest run.
 
         Returns:
@@ -287,7 +286,7 @@ class BacktestEngine:
             return None
         return pd.DataFrame(equity_curve)
 
-    def get_trades(self) -> Optional[pd.DataFrame]:
+    def get_trades(self) -> pd.DataFrame | None:
         """Return trade records from the last backtest run.
 
         Returns:
@@ -322,8 +321,8 @@ class PaperTradingSimulator:
         """
         self.initial_cash = initial_cash
         self.cash = initial_cash
-        self.positions: Dict[str, Dict[str, Any]] = {}
-        self.orders_log: List[Dict[str, Any]] = []
+        self.positions: dict[str, dict[str, Any]] = {}
+        self.orders_log: list[dict[str, Any]] = []
         self._order_counter = 0
 
     def place_order(
@@ -332,9 +331,9 @@ class PaperTradingSimulator:
         side: str,
         quantity: float,
         order_type: str = "market",
-        limit_price: Optional[float] = None,
-        stop_price: Optional[float] = None,
-    ) -> Dict[str, Any]:
+        limit_price: float | None = None,
+        stop_price: float | None = None,
+    ) -> dict[str, Any]:
         """Log a paper trade order without executing it.
 
         Args:
@@ -359,7 +358,7 @@ class PaperTradingSimulator:
             raise ValueError(f"Quantity must be positive, got {quantity}.")
 
         self._order_counter += 1
-        order: Dict[str, Any] = {
+        order: dict[str, Any] = {
             "id": f"paper-{uuid.uuid4().hex[:12]}",
             "symbol": symbol.upper(),
             "side": side,
@@ -368,7 +367,7 @@ class PaperTradingSimulator:
             "limit_price": limit_price,
             "stop_price": stop_price,
             "status": "logged",
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
             "order_num": self._order_counter,
         }
         self.orders_log.append(order)
@@ -376,9 +375,9 @@ class PaperTradingSimulator:
 
     def get_orders_log(
         self,
-        symbol: Optional[str] = None,
-        status: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        symbol: str | None = None,
+        status: str | None = None,
+    ) -> list[dict[str, Any]]:
         """Retrieve logged orders, optionally filtered.
 
         Args:
@@ -399,7 +398,7 @@ class PaperTradingSimulator:
         """Clear all logged orders."""
         self.orders_log.clear()
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Return a summary of the simulator state.
 
         Returns:
@@ -430,7 +429,7 @@ class StrategyRunner:
     def __init__(
         self,
         data: pd.DataFrame,
-        strategy: Type[Strategy],
+        strategy: type[Strategy],
         cash: float = 100_000.0,
         commission: float = 0.001,
         spread: float = 0.0,
@@ -449,8 +448,8 @@ class StrategyRunner:
         self.cash = cash
         self.commission = commission
         self.spread = spread
-        self.events: List[Dict[str, Any]] = []
-        self._result: Optional[pd.Series] = None
+        self.events: list[dict[str, Any]] = []
+        self._result: pd.Series | None = None
 
     def run(self, **strategy_params: Any) -> pd.Series:
         """Run the strategy and collect chronological events.
@@ -475,11 +474,9 @@ class StrategyRunner:
         trades = result.get("_trades")
         if trades is not None:
             # _trades can be a DataFrame (multiple trades) or Series (single trade)
-            if hasattr(trades, "iterrows"):
-                trade_iter = trades.iterrows()
-            else:
-                # Single trade as Series — wrap in a list
-                trade_iter = [(0, trades)]
+            trade_iter = (
+                trades.iterrows() if hasattr(trades, "iterrows") else [(0, trades)]
+            )
 
             for _, trade in trade_iter:
                 self.events.append(
@@ -505,7 +502,7 @@ class StrategyRunner:
 
         return result
 
-    def get_events(self) -> List[Dict[str, Any]]:
+    def get_events(self) -> list[dict[str, Any]]:
         """Return collected events in chronological order.
 
         Returns:
