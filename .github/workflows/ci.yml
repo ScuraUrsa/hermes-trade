@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNS_ON || 'hermes' }}
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
@@ -42,7 +42,7 @@ jobs:
           fail_ci_if_error: false
 
   security:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNS_ON || 'hermes' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -52,3 +52,10 @@ jobs:
           scan-type: fs
           scan-ref: .
           severity: HIGH,CRITICAL
+          # Keep the vulnerability DB outside the checkout so it survives between
+          # runs on the self-hosted runner (checkout cleans the workspace, and the
+          # 120 MB download alone used up the scan timeout). Allow time for a cold
+          # download on the shared runner.
+          cache-dir: ${{ runner.tool_cache }}/trivy
+          skip-dirs: .cache
+          timeout: 30m
