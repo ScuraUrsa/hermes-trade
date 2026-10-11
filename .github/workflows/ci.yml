@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNS_ON || 'hermes' }}
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
@@ -42,7 +42,7 @@ jobs:
           fail_ci_if_error: false
 
   security:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNS_ON || 'hermes' }}
     steps:
       - uses: actions/checkout@v4
 
