@@ -52,3 +52,7 @@ jobs:
           scan-type: fs
           scan-ref: .
           severity: HIGH,CRITICAL
+          # The action keeps its DB cache in ./.cache; don't scan it. The shared
+          # self-hosted runner is slower than a hosted one, so allow more time.
+          skip-dirs: .cache
+          timeout: 15m
