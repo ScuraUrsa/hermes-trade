@@ -1,0 +1,149 @@
+# Example event playbooks for the scenario machine — PAPER ONLY.
+#
+# Load with: hermes_trade.events.load_playbooks("config/events.example.yaml")
+#
+# Everything marked "TODO verify" is a placeholder and must be checked and
+# refreshed the day before the event:
+#   * meeting dates / announcement times (federalreserve.gov, nbp.pl calendar)
+#   * previous_rate (current FOMC upper bound / NBP reference rate)
+#   * expected_probability (market pricing: CME FedWatch, FRA/OIS for PLN)
+#   * stop_price / take_profit_price (absolute levels, from current quotes)
+#
+# Surprise is relative to the market expectation (highest probability):
+# e.g. if CUT is priced at 80% and the Fed HOLDs, that is a hawkish surprise,
+# even though the rate did not move.
+#
+# Sizes are deliberately tiny (paper). risk limits come from RiskManager.
+
+playbooks:
+  # ------------------------------------------------------------------ FOMC
+  - event:
+      id: fomc-2026-10-28
+      kind: FOMC
+      scheduled_at: "2026-10-28T18:00:00Z"   # TODO verify (2:00 p.m. EDT statement)
+      source_url: https://www.federalreserve.gov/newsevents/pressreleases.htm
+      previous_rate: "3.75"                  # TODO verify current upper bound
+    scenarios:
+      - name: CUT
+        expected_probability: 0.70           # TODO verify (FedWatch)
+        description: priced outcome, 25 bp cut
+      - name: HOLD
+        expected_probability: 0.28           # TODO verify
+        description: hawkish surprise vs. priced cut
+      - name: HIKE
+        expected_probability: 0.02           # TODO verify
+        description: very hawkish surprise (tail)
+    plans:
+      CUT:
+        scenario: CUT
+        notes: no surprise — priced in; do nothing, keep pre-position (if any)
+        legs: []
+      HOLD:
+        scenario: HOLD
+        notes: hawkish surprise — duration and equities down
+        legs:
+          - signal:
+              symbol: TLT
+              side: sell
+              quantity: "5"
+              order_type: market
+              stop_price: "92.00"            # TODO verify (above entry)
+              confidence: 0.7
+              reason: "FOMC hawkish surprise: HOLD vs priced CUT -> long yields up"
+            take_profit_price: "87.00"       # TODO verify (below entry)
+          - signal:
+              symbol: SPY
+              side: sell
+              quantity: "2"
+              order_type: market
+              stop_price: "690.00"           # TODO verify
+              confidence: 0.6
+              reason: "FOMC hawkish surprise: HOLD vs priced CUT -> equities down"
+            take_profit_price: "660.00"      # TODO verify
+      HIKE:
+        scenario: HIKE
+        notes: very hawkish surprise (two steps) — same direction, still small size
+        legs:
+          - signal:
+              symbol: TLT
+              side: sell
+              quantity: "8"
+              order_type: market
+              stop_price: "92.00"            # TODO verify
+              confidence: 0.75
+              reason: "FOMC very hawkish surprise: HIKE vs priced CUT"
+            take_profit_price: "85.00"       # TODO verify
+          - signal:
+              symbol: SPY
+              side: sell
+              quantity: "3"
+              order_type: market
+              stop_price: "690.00"           # TODO verify
+              confidence: 0.65
+              reason: "FOMC very hawkish surprise: HIKE vs priced CUT"
+            take_profit_price: "650.00"      # TODO verify
+    prepositioned:
+      scenario: CUT
+      max_total_quantity: "3"
+      notes: small long duration before the expected cut; unwound at market if no cut
+      legs:
+        - signal:
+            symbol: TLT
+            side: buy
+            quantity: "3"
+            order_type: market
+            stop_price: "87.50"              # TODO verify (below entry)
+            confidence: 0.6
+            reason: "Pre-position for expected FOMC cut"
+          take_profit_price: "92.50"         # TODO verify
+
+  # --------------------------------------------------------------- NBP RPP
+  - event:
+      id: nbp-rpp-2026-11-04
+      kind: NBP_RPP
+      scheduled_at: "2026-11-04T13:00:00Z"   # TODO verify (meeting date; communique time is not fixed)
+      source_url: https://nbp.pl/polityka-pieniezna/decyzje-rpp/komunikaty-rpp/
+      previous_rate: "4.00"                  # TODO verify current reference rate
+    scenarios:
+      - name: CUT
+        expected_probability: 0.25           # TODO verify (FRA/OIS pricing)
+        description: dovish surprise vs. priced hold
+      - name: HOLD
+        expected_probability: 0.73           # TODO verify
+        description: priced outcome
+      - name: HIKE
+        expected_probability: 0.02           # TODO verify
+        description: hawkish tail
+    plans:
+      CUT:
+        scenario: CUT
+        notes: >
+          dovish surprise — PLN weaker. EPOL (iShares MSCI Poland, USD-denominated)
+          is a rough USD/PLN proxy: weaker PLN tends to push it down in USD terms.
+        legs:
+          - signal:
+              symbol: EPOL
+              side: sell
+              quantity: "5"
+              order_type: market
+              stop_price: "33.00"            # TODO verify
+              confidence: 0.6
+              reason: "RPP dovish surprise: CUT vs priced HOLD -> PLN weaker"
+            take_profit_price: "30.00"       # TODO verify
+      HOLD:
+        scenario: HOLD
+        notes: no surprise — do nothing
+        legs: []
+      HIKE:
+        scenario: HIKE
+        notes: hawkish surprise — PLN stronger
+        legs:
+          - signal:
+              symbol: EPOL
+              side: buy
+              quantity: "5"
+              order_type: market
+              stop_price: "30.00"            # TODO verify
+              confidence: 0.6
+              reason: "RPP hawkish surprise: HIKE vs priced HOLD -> PLN stronger"
+            take_profit_price: "34.00"       # TODO verify
