@@ -20,9 +20,13 @@ playbooks:
   - event:
       id: fomc-2026-10-28
       kind: FOMC
-      scheduled_at: "2026-10-28T18:00:00Z"   # TODO verify (2:00 p.m. EDT statement)
+      # verified 2026-10-20: federalreserve.gov/monetarypolicy/fomccalendars.htm
+      # lists the Oct 27-28, 2026 meeting; Board calendar shows 2:00 p.m. (EDT).
+      scheduled_at: "2026-10-28T18:00:00Z"
       source_url: https://www.federalreserve.gov/newsevents/pressreleases.htm
-      previous_rate: "3.75"                  # TODO verify current upper bound
+      # verified 2026-10-20: Sep 16, 2026 statement raised the range by 1/4 pt
+      # to 3-3/4 to 4 percent -> upper bound 4.00.
+      previous_rate: "4.00"
     scenarios:
       - name: CUT
         expected_probability: 0.70           # TODO verify (FedWatch)
@@ -101,7 +105,10 @@ playbooks:
   - event:
       id: nbp-rpp-2026-11-04
       kind: NBP_RPP
-      scheduled_at: "2026-11-04T13:00:00Z"   # TODO verify (meeting date; communique time is not fixed)
+      # TODO verify: nbp.pl was unreachable on 2026-10-20, so neither the meeting
+      # date nor the current reference rate could be confirmed (communique time
+      # is not fixed). Check nbp.pl "Harmonogram posiedzen RPP".
+      scheduled_at: "2026-11-04T13:00:00Z"   # TODO verify
       source_url: https://nbp.pl/polityka-pieniezna/decyzje-rpp/komunikaty-rpp/
       previous_rate: "4.00"                  # TODO verify current reference rate
     scenarios:

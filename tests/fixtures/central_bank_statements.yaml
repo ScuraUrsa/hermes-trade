@@ -1,31 +1,51 @@
 # Historical central-bank decision statements for parser evaluation.
 #
-# Texts are SHORT EXCERPTS of real past statements, reproduced from memory:
-# the decision sentences follow the official wording, surrounding sentences
-# are abbreviated. Verify against federalreserve.gov / nbp.pl before relying
-# on exact wording. Rates: FOMC = upper bound of the target range, NBP =
-# reference rate.
+# Texts are SHORT EXCERPTS (decision sentence + any dissent sentence) of real
+# past statements. Rates: FOMC = upper bound of the target range, NBP =
+# reference rate. Extra keys (source, verified) are ignored by load_cases.
+#
+# FOMC cases: verified 2026-10-20 against the federalreserve.gov press release
+# linked in each case's `source` (date, decision, range, and verbatim wording
+# of the quoted sentences).
+#
+# NBP RPP cases: NOT verified -- nbp.pl was unreachable from the verification
+# environment on 2026-10-20. These are still WRITTEN FROM MEMORY: the decision
+# sentences follow the usual communique wording but dates, levels and exact
+# phrasing must be checked against nbp.pl ("Komunikat po posiedzeniu Rady
+# Polityki Pienieznej") before relying on them.
 cases:
   # ---------------------------------------------------------------- FOMC
+  - label: fomc-2026-09-16-hike-25
+    kind: FOMC
+    expected: HIKE
+    previous_rate: 3.75
+    expected_rate: 4.00
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm
+    verified: true
+    text: >
+      The Committee decided to raise the target range for the federal funds
+      rate by 1/4 percentage point to 3-3/4 to 4 percent, in support of the
+      Federal Reserve's dual mandate.
   - label: fomc-2025-09-17-cut-25-with-dovish-dissent
     kind: FOMC
     expected: CUT
     previous_rate: 4.50
     expected_rate: 4.25
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm
+    verified: true
     text: >
-      Uncertainty about the economic outlook remains elevated. The Committee is
-      attentive to the risks to both sides of its dual mandate and judges that
-      downside risks to employment have risen. In support of its goals and in
-      light of the shift in the balance of risks, the Committee decided to lower
-      the target range for the federal funds rate by 1/4 percentage point to 4 to
-      4-1/4 percent. Voting against this action was Stephen I. Miran, who
-      preferred to lower the target range for the federal funds rate by 1/2
-      percentage point at this meeting.
+      In support of its goals and in light of the shift in the balance of risks,
+      the Committee decided to lower the target range for the federal funds rate
+      by 1/4 percentage point to 4 to 4‑1/4 percent. Voting against this action
+      was Stephen I. Miran, who preferred to lower the target range for the
+      federal funds rate by 1/2 percentage point at this meeting.
   - label: fomc-2025-07-30-hold-with-two-dissents-preferring-cut
     kind: FOMC
     expected: HOLD
     previous_rate: 4.50
     expected_rate: 4.50
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm
+    verified: true
     text: >
       In support of its goals, the Committee decided to maintain the target range
       for the federal funds rate at 4-1/4 to 4-1/2 percent. Voting against this
@@ -37,16 +57,18 @@ cases:
     expected: HOLD
     previous_rate: 4.50
     expected_rate: 4.50
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250129a.htm
+    verified: true
     text: >
-      The Committee seeks to achieve maximum employment and inflation at the rate
-      of 2 percent over the longer run. In support of its goals, the Committee
-      decided to maintain the target range for the federal funds rate at 4‑1/4 to
-      4‑1/2 percent.
+      In support of its goals, the Committee decided to maintain the target range
+      for the federal funds rate at 4-1/4 to 4-1/2 percent.
   - label: fomc-2024-12-18-cut-with-hawkish-dissent
     kind: FOMC
     expected: CUT
     previous_rate: 4.75
     expected_rate: 4.50
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20241218a.htm
+    verified: true
     text: >
       In support of its goals, the Committee decided to lower the target range for
       the federal funds rate by 1/4 percentage point to 4-1/4 to 4-1/2 percent.
@@ -57,6 +79,8 @@ cases:
     expected: CUT
     previous_rate: 5.50
     expected_rate: 5.00
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm
+    verified: true
     text: >
       In light of the progress on inflation and the balance of risks, the
       Committee decided to lower the target range for the federal funds rate by
@@ -68,30 +92,39 @@ cases:
     expected: HIKE
     previous_rate: 5.25
     expected_rate: 5.50
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm
+    verified: true
     text: >
       In support of these goals, the Committee decided to raise the target range
-      for the federal funds rate to 5-1/4 to 5-1/2 percent. The Committee will
-      continue to assess additional information and its implications for monetary
-      policy.
-  - label: fomc-2022-06-15-hike-75
+      for the federal funds rate to 5-1/4 to 5-1/2 percent.
+  - label: fomc-2022-06-15-hike-75-with-dissent
     kind: FOMC
     expected: HIKE
     previous_rate: 1.00
     expected_rate: 1.75
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20220615a.htm
+    verified: true
     text: >
       In support of these goals, the Committee decided to raise the target range
-      for the federal funds rate to 1-1/2 to 1-3/4 percent and anticipates that
-      ongoing increases in the target range will be appropriate.
-  - label: fomc-2020-03-15-emergency-cut-to-zero
+      for the federal funds rate to 1‑1/2 to 1-3/4 percent and anticipates that
+      ongoing increases in the target range will be appropriate. Voting against
+      this action was Esther L. George, who preferred at this meeting to raise the
+      target range for the federal funds rate by 0.5 percentage point to 1-1/4
+      percent to 1-1/2 percent.
+  - label: fomc-2020-03-15-emergency-cut-to-zero-with-dissent
     kind: FOMC
     expected: CUT
     previous_rate: 1.25
     expected_rate: 0.25
+    source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20200315a.htm
+    verified: true
     text: >
-      Consistent with its statutory mandate, the Committee seeks to foster maximum
-      employment and price stability. In light of these developments, the
-      Committee decided to lower the target range for the federal funds rate to 0
-      to 1/4 percent.
+      In light of these developments, the Committee decided to lower the target
+      range for the federal funds rate to 0 to 1/4 percent. Voting against this
+      action was Loretta J. Mester, who was fully supportive of all of the actions
+      taken to promote the smooth functioning of markets and the flow of credit
+      to households and businesses but preferred to reduce the target range for
+      the federal funds rate to 1/2 to 3/4 percent at this meeting.
 
   # ---------------------------------------------------------------- NBP RPP
   - label: nbp-2025-07-02-cut-25
@@ -99,6 +132,7 @@ cases:
     expected: CUT
     previous_rate: 5.25
     expected_rate: 5.00
+    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
     text: >
       Komunikat po posiedzeniu Rady Polityki Pieniężnej w dniach 1-2 lipca 2025 r.
       Rada postanowiła obniżyć stopy procentowe NBP o 0,25 pkt proc., ustalając je
@@ -110,6 +144,7 @@ cases:
     expected: CUT
     previous_rate: 5.75
     expected_rate: 5.25
+    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
     text: >
       Rada Polityki Pieniężnej postanowiła obniżyć stopy procentowe NBP o 0,50 pkt
       proc., ustalając je na poziomie: stopa referencyjna 5,25% w skali rocznej;
@@ -120,6 +155,7 @@ cases:
     expected: HOLD
     previous_rate: 5.75
     expected_rate: 5.75
+    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
     text: >
       Rada postanowiła pozostawić stopy procentowe NBP bez zmian, tj.: stopa
       referencyjna 5,75% w skali rocznej; stopa lombardowa 6,25% w skali rocznej;
@@ -130,6 +166,7 @@ cases:
     expected: HOLD
     previous_rate: 5.25
     expected_rate: 5.25
+    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
     text: >
       Rada postanowila pozostawic stopy procentowe NBP na niezmienionym poziomie:
       stopa referencyjna 5,25% w skali rocznej; stopa lombardowa 5,75% w skali
@@ -139,6 +176,7 @@ cases:
     expected: CUT
     previous_rate: 6.75
     expected_rate: 6.00
+    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
     text: >
       Rada postanowiła obniżyć stopy procentowe NBP o 0,75 pkt proc., ustalając je
       na poziomie: stopa referencyjna 6,00% w skali rocznej; stopa lombardowa
@@ -148,6 +186,7 @@ cases:
     expected: HIKE
     previous_rate: 6.50
     expected_rate: 6.75
+    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
     text: >
       Rada postanowiła podwyższyć stopy procentowe NBP o 0,25 pkt proc., ustalając
       je na poziomie: stopa referencyjna 6,75% w skali rocznej; stopa lombardowa
@@ -157,6 +196,7 @@ cases:
     expected: HIKE
     previous_rate: 0.10
     expected_rate: 0.50
+    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
     text: >
       Rada postanowiła podwyższyć stopy procentowe NBP, ustalając je na poziomie:
       stopa referencyjna 0,50% w skali rocznej; stopa lombardowa 1,00% w skali
