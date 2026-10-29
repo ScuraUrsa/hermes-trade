@@ -139,6 +139,25 @@ class TestNbpParser:
         assert d.scenario == ScenarioName.HIKE
         assert d.new_rate == Decimal("6.75")
 
+    def test_communique_phrasing_cut_takes_level_not_step(self) -> None:
+        text = (
+            "Rada podjęła decyzję o obniżeniu stopy referencyjnej NBP o 0,25 punktu "
+            "procentowego, tj. do poziomu 5,00%. Jednocześnie Rada ustaliła następujący "
+            "poziom pozostałych stóp procentowych NBP: stopa lombardowa 5,50%;"
+        )
+        d = parse_nbp_communique(text, Decimal("5.25"))
+        assert d.scenario == ScenarioName.CUT
+        assert d.new_rate == Decimal("5.00")
+
+    def test_communique_phrasing_hold(self) -> None:
+        text = (
+            "Rada podjęła decyzję o utrzymaniu stóp procentowych NBP na niezmienionym "
+            "poziomie: stopa referencyjna 5,75%; stopa lombardowa 6,25%;"
+        )
+        d = parse_nbp_communique(text, Decimal("5.75"))
+        assert d.scenario == ScenarioName.HOLD
+        assert d.new_rate == Decimal("5.75")
+
     def test_skips_lombard_and_deposit_rates(self) -> None:
         text = (
             "Rada postanowiła obniżyć stopy procentowe NBP: stopa lombardowa 4,50%; "
