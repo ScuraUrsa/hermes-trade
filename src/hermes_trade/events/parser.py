@@ -153,13 +153,19 @@ def parse_fomc_statement(text: str, previous_upper: Decimal | None = None) -> Pa
 
 # --------------------------------------------------------------------------- NBP
 
+# Two phrasings: "Rada postanowila obnizyc stopy ..." and the one used in the
+# official communique, "Rada podjela decyzje o obnizeniu stopy referencyjnej
+# NBP o 0,25 punktu procentowego, tj. do poziomu 5,00%".
 _NBP_DECISION = re.compile(
-    r"(?:rada|rpp)\b[^.]{0,60}?postanowil\w*\s+"
-    r"(?P<verb>obnizyc|pozostawic|utrzymac|podwyzszyc|podniesc)"
+    r"(?:rada|rpp)\b[^.]{0,60}?"
+    r"(?:postanowil\w*\s+(?P<verb>obnizyc|pozostawic|utrzymac|podwyzszyc|podniesc)"
+    r"|podjela decyzje o\s+"
+    r"(?P<noun>obnizeniu|pozostawieniu|utrzymaniu|podwyzszeniu|podniesieniu))"
     r"(?P<tail>[^:;]{0,120})"
 )
 _NBP_REFERENCE = re.compile(
-    r"stopa referencyjna(?: nbp)?(?: w wysokosci| na poziomie| wynosi)?:? ?"
+    r"stop(?:a|y) referencyjn(?:a|ej)(?: nbp)?(?: w wysokosci| na poziomie| wynosi)?:? ?"
+    r"(?:[^%:;]{0,80}?do poziomu )?"
     r"(?P<rate>\d+(?:[.,]\d+)?) ?%"
 )
 _NBP_VERBS: dict[str, ScenarioName] = {
@@ -168,6 +174,11 @@ _NBP_VERBS: dict[str, ScenarioName] = {
     "utrzymac": ScenarioName.HOLD,
     "podwyzszyc": ScenarioName.HIKE,
     "podniesc": ScenarioName.HIKE,
+    "obnizeniu": ScenarioName.CUT,
+    "pozostawieniu": ScenarioName.HOLD,
+    "utrzymaniu": ScenarioName.HOLD,
+    "podwyzszeniu": ScenarioName.HIKE,
+    "podniesieniu": ScenarioName.HIKE,
 }
 
 
@@ -182,13 +193,15 @@ def parse_nbp_communique(text: str, previous_reference: Decimal | None = None) -
     m = _NBP_DECISION.search(norm)
     if m is None:
         raise StatementParseError("no RPP decision sentence found")
-    verb = m.group("verb")
+    verb = m.group("verb") or m.group("noun")
     scenario = _NBP_VERBS[verb]
     if "stop" not in m.group("tail"):
         raise StatementParseError("RPP decision sentence does not refer to interest rates")
     if scenario == ScenarioName.HOLD and not re.search(r"bez zmian|niezmienion", m.group("tail")):
         raise StatementParseError("RPP 'pozostawic' without 'bez zmian'; ambiguous")
-    ref = _NBP_REFERENCE.search(norm, m.end())
+    # From the verb on: the communique states the new reference rate inside
+    # the decision sentence ("... tj. do poziomu 5,00%").
+    ref = _NBP_REFERENCE.search(norm, m.start("tail"))
     if ref is None:
         raise StatementParseError("no reference rate found after the RPP decision")
     rate = Decimal(ref.group("rate").replace(",", "."))
