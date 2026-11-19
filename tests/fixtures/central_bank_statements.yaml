@@ -8,11 +8,12 @@
 # linked in each case's `source` (date, decision, range, and verbatim wording
 # of the quoted sentences).
 #
-# NBP RPP cases: NOT verified -- nbp.pl was unreachable from the verification
-# environment on 2026-10-20. These are still WRITTEN FROM MEMORY: the decision
-# sentences follow the usual communique wording but dates, levels and exact
-# phrasing must be checked against nbp.pl ("Komunikat po posiedzeniu Rady
-# Polityki Pienieznej") before relying on them.
+# NBP RPP cases: verified 2026-10-29 (date, decision, reference rate and
+# verbatim wording of the decision sentence + rate list). nbp.pl itself is
+# unreachable by curl from the verification environment; three cases were
+# read from the nbp.pl communique PDF through a web-fetch proxy, the other four
+# against a republished copy of the communique (source given per case,
+# meeting dates cross-checked against a second report).
 cases:
   # ---------------------------------------------------------------- FOMC
   - label: fomc-2026-09-16-hike-25
@@ -127,77 +128,101 @@ cases:
       the federal funds rate to 1/2 to 3/4 percent at this meeting.
 
   # ---------------------------------------------------------------- NBP RPP
+  # Text = decision sentence(s) + rate list from the official "Informacja po
+  # posiedzeniu Rady Polityki Pienieznej" (the communique), copied verbatim;
+  # only the list bullets were dropped.
   - label: nbp-2025-07-02-cut-25
     kind: NBP_RPP
     expected: CUT
     previous_rate: 5.25
     expected_rate: 5.00
-    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
+    # meeting 1-2 July 2025; verified against a republished communique
+    source: https://www.biznesradar.pl/a/138096,rada-polityki-pienieznej-jednak-ponownie-obnizyla-stopy
+    verified: true
     text: >
-      Komunikat po posiedzeniu Rady Polityki Pieniężnej w dniach 1-2 lipca 2025 r.
-      Rada postanowiła obniżyć stopy procentowe NBP o 0,25 pkt proc., ustalając je
-      na poziomie: stopa referencyjna 5,00% w skali rocznej; stopa lombardowa 5,50%
-      w skali rocznej; stopa depozytowa 4,50% w skali rocznej; stopa redyskontowa
-      weksli 5,05% w skali rocznej; stopa dyskontowa weksli 5,10% w skali rocznej.
+      Rada podjęła decyzję o obniżeniu stopy referencyjnej NBP o 0,25 punktu
+      procentowego, tj. do poziomu 5,00%. Jednocześnie Rada ustaliła następujący
+      poziom pozostałych stóp procentowych NBP: stopa lombardowa 5,50%; stopa
+      depozytowa 4,50%; stopa redyskontowa weksli 5,05%; stopa dyskontowa weksli
+      5,10%.
   - label: nbp-2025-05-07-cut-50
     kind: NBP_RPP
     expected: CUT
     previous_rate: 5.75
     expected_rate: 5.25
-    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
+    # meeting 6-7 May 2025; verified against a republished communique
+    source: https://www.biznesradar.pl/a/136200,rpp-uzasadnione-stalo-sie-dostosowanie-poziomu-stop-procentowych
+    verified: true
     text: >
-      Rada Polityki Pieniężnej postanowiła obniżyć stopy procentowe NBP o 0,50 pkt
-      proc., ustalając je na poziomie: stopa referencyjna 5,25% w skali rocznej;
-      stopa lombardowa 5,75% w skali rocznej; stopa depozytowa 4,75% w skali
-      rocznej.
+      Rada podjęła decyzję o obniżeniu stopy referencyjnej NBP o 0,5 punktu
+      procentowego, tj. do poziomu 5,25%. Jednocześnie Rada ustaliła następujący
+      poziom pozostałych stóp procentowych NBP: stopa lombardowa 5,75%; stopa
+      depozytowa 4,75%; stopa redyskontowa weksli 5,30%; stopa dyskontowa weksli
+      5,35%
   - label: nbp-2024-11-06-hold
     kind: NBP_RPP
     expected: HOLD
     previous_rate: 5.75
     expected_rate: 5.75
-    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
+    # meeting 5-6 November 2024; verified against the nbp.pl PDF
+    source: https://nbp.pl/wp-content/uploads/2024/11/Komunikat-RPP-listopad-2024.pdf
+    verified: true
     text: >
-      Rada postanowiła pozostawić stopy procentowe NBP bez zmian, tj.: stopa
-      referencyjna 5,75% w skali rocznej; stopa lombardowa 6,25% w skali rocznej;
-      stopa depozytowa 5,25% w skali rocznej; stopa redyskontowa weksli 5,80% w
-      skali rocznej; stopa dyskontowa weksli 5,85% w skali rocznej.
+      Rada podjęła decyzję o utrzymaniu stóp procentowych NBP na niezmienionym
+      poziomie: stopa referencyjna 5,75%; stopa lombardowa 6,25%; stopa depozytowa
+      5,25%; stopa redyskontowa weksli 5,80%; stopa dyskontowa weksli 5,85%.
   - label: nbp-2025-06-04-hold-ascii-scrape
     kind: NBP_RPP
     expected: HOLD
     previous_rate: 5.25
     expected_rate: 5.25
-    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
+    # meeting 3-4 June 2025; verified against the nbp.pl PDF. Text is the
+    # verbatim sentence with diacritics stripped on purpose (ASCII scrape test).
+    source: https://nbp.pl/wp-content/uploads/2025/06/Komunikat-RPP-czerwiec-2025.pdf
+    verified: true
     text: >
-      Rada postanowila pozostawic stopy procentowe NBP na niezmienionym poziomie:
-      stopa referencyjna 5,25% w skali rocznej; stopa lombardowa 5,75% w skali
-      rocznej; stopa depozytowa 4,75% w skali rocznej.
+      Rada podjela decyzje o utrzymaniu stop procentowych NBP na niezmienionym
+      poziomie: stopa referencyjna 5,25%; stopa lombardowa 5,75%; stopa depozytowa
+      4,75%; stopa redyskontowa weksli 5,30%; stopa dyskontowa weksli 5,35%.
   - label: nbp-2023-09-06-cut-75
     kind: NBP_RPP
     expected: CUT
     previous_rate: 6.75
     expected_rate: 6.00
-    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
+    # meeting 5-6 September 2023; verified against a republished communique
+    source: https://www.biznesradar.pl/a/120052,rpp-tnie-stopy-procentowe
+    verified: true
     text: >
-      Rada postanowiła obniżyć stopy procentowe NBP o 0,75 pkt proc., ustalając je
-      na poziomie: stopa referencyjna 6,00% w skali rocznej; stopa lombardowa
-      6,50% w skali rocznej; stopa depozytowa 5,50% w skali rocznej.
+      Rada podjęła decyzję o obniżeniu stopy referencyjnej NBP o 0,75 punktu
+      procentowego, tj. do poziomu 6,00%. Jednocześnie Rada ustaliła następujący
+      poziom pozostałych stóp procentowych NBP: stopa lombardowa 6,50%; stopa
+      depozytowa 5,50%; stopa redyskontowa weksli 6,05%; stopa dyskontowa weksli
+      6,10%.
   - label: nbp-2022-09-07-hike-25
     kind: NBP_RPP
     expected: HIKE
     previous_rate: 6.50
     expected_rate: 6.75
-    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
+    # one-day meeting 7 September 2022; verified against the nbp.pl PDF
+    source: https://nbp.pl/wp-content/uploads/2022/09/rpp_2022_09_07.pdf
+    verified: true
     text: >
-      Rada postanowiła podwyższyć stopy procentowe NBP o 0,25 pkt proc., ustalając
-      je na poziomie: stopa referencyjna 6,75% w skali rocznej; stopa lombardowa
-      7,25% w skali rocznej; stopa depozytowa 6,25% w skali rocznej.
+      Rada podjęła decyzję o podwyższeniu stopy referencyjnej NBP o 0,25 punktu
+      procentowego, tj. do poziomu 6,75%. Jednocześnie Rada ustaliła następujący
+      poziom pozostałych stóp procentowych NBP: stopa lombardowa 7,25%; stopa
+      depozytowa 6,25%; stopa redyskontowa weksli 6,80%; stopa dyskontowa weksli
+      6,85%.
   - label: nbp-2021-10-06-hike-40
     kind: NBP_RPP
     expected: HIKE
     previous_rate: 0.10
     expected_rate: 0.50
-    verified: false  # nbp.pl unreachable 2026-10-20; written from memory
+    # one-day meeting 6 October 2021; verified against a republished communique
+    # (also matches ksiegowosc.infor.pl/wiadomosci/5336834)
+    source: https://www.biznesradar.pl/a/103984,rpp-podniosla-stopy-procentowe-nbp
+    verified: true
     text: >
-      Rada postanowiła podwyższyć stopy procentowe NBP, ustalając je na poziomie:
-      stopa referencyjna 0,50% w skali rocznej; stopa lombardowa 1,00% w skali
-      rocznej; stopa depozytowa 0,00% w skali rocznej.
+      Rada podjęła decyzję o podwyższeniu stopy referencyjnej NBP o 0,4 pkt proc.,
+      tj. do poziomu 0,50%. Jednocześnie Rada ustaliła następujący poziom
+      pozostałych stóp procentowych NBP: stopa lombardowa 1,00%; stopa depozytowa
+      0,00%; stopa redyskontowa weksli 0,51%; stopa dyskontowa weksli 0,52%.

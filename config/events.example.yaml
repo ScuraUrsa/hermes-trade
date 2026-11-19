@@ -105,12 +105,17 @@ playbooks:
   - event:
       id: nbp-rpp-2026-11-04
       kind: NBP_RPP
-      # TODO verify: nbp.pl was unreachable on 2026-10-20, so neither the meeting
-      # date nor the current reference rate could be confirmed (communique time
-      # is not fixed). Check nbp.pl "Harmonogram posiedzen RPP".
-      scheduled_at: "2026-11-04T13:00:00Z"   # TODO verify
+      # verified 2026-10-29 (nbp.pl not reachable directly; secondary sources):
+      #   * date: decision meeting 3-4 Nov 2026 per the NBP 2026 RPP schedule as
+      #     republished at ksiegowosc.infor.pl/obrot-gospodarczy/finanse-i-inwestycje/
+      #     7451398,harmonogram-posiedzen-rady-polityki-pienieznej-w-2026-roku.html
+      #   * previous_rate: 3.75% reference rate, held at the 6-7 Oct 2026 meeting
+      #     (unchanged since the 5 Mar 2026 cut), per finwire.pl/artykuly/
+      #     stopy-procentowe-nbp-pazdziernik-2026-375-decyzja-rpp-rata-kredytu
+      # The communique time is not fixed in advance; recheck schedule on nbp.pl.
+      scheduled_at: "2026-11-04T13:00:00Z"   # TODO verify time of day only
       source_url: https://nbp.pl/polityka-pieniezna/decyzje-rpp/komunikaty-rpp/
-      previous_rate: "4.00"                  # TODO verify current reference rate
+      previous_rate: "3.75"
     scenarios:
       - name: CUT
         expected_probability: 0.25           # TODO verify (FRA/OIS pricing)
